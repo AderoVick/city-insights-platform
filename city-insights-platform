@@ -1,0 +1,173 @@
+init:
+	python -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt
+
+data:
+	python -m src.etl.make_dataset && python -m src.features.build_features
+
+train:
+	python -m src.models.train_model
+
+api:
+	uvicorn src.api.app:app --reload
+
+dash:
+	streamlit run src.dashboard.app.py
+
+test:
+	pytest -q
+
+# City Insights Platform
+
+<p align="left">
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.11-blue?logo=python" />
+  <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-API-green?logo=fastapi" />
+  <img alt="Streamlit" src="https://img.shields.io/badge/Streamlit-Dashboard-red?logo=streamlit" />
+</p>
+
+
+An end‑to‑end analytics project that simulates **mobility + air quality** data for multiple cities, builds a predictive model for **PM2.5**, serves predictions via a **FastAPI** microservice, and visualizes insights with a **Streamlit** dashboard.
+
+Perfect for a portfolio: clear structure, realistic pipeline, and runnable demos—no external APIs required.
+
+## What’s inside
+- **ETL:** generate/clean synthetic time‑series data
+- **Features:** create model-ready features
+- **Model:** train a RandomForest to predict next‑hour PM2.5
+- **API:** FastAPI endpoint `POST /predict` to score new rows
+- **Dashboard:** Streamlit app for KPIs, charts, and live predictions
+- **Notebooks:** quick EDA and sanity checks
+- **Tests:** lightweight unit tests for core pieces
+- **Docker:** containerize the API + dashboard
+
+## About Me
+
+Hi, I’m **AderoVick** — a data analyst & programmer who enjoys end‑to‑end builds: clean ETL, practical features, useful models, and shipping them behind APIs with a usable UI. I like projects that are realistic, explainable, and easy for others to run.
+
+## Preview
+
+![Dashboard Preview](assets/screenshot.png)
+
+## Quickstart
+```bash
+# 1) Environment
+python -m venv .venv
+# macOS/Linux
+source .venv/bin/activate
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+
+# 2) Make processed data & features
+python -m src.etl.make_dataset
+python -m src.features.build_features
+
+# 3) Train model (creates models/model.pkl)
+python -m src.models.train_model
+
+# 4) Run API (http://localhost:8000/docs)
+uvicorn src.api.app:app --reload
+
+# 5) Run Dashboard (http://localhost:8501)
+streamlit run src/dashboard/app.py
+```
+
+## Repo structure
+```
+.
+├─ data/
+│  ├─ raw/                # synthetic raw
+│  └─ processed/          # clean + features
+├─ notebooks/             # EDA/model sanity
+├─ src/
+│  ├─ etl/                # data generation / cleaning
+│  ├─ features/           # feature engineering
+│  ├─ models/             # training + artifacts
+│  ├─ api/                # FastAPI service
+│  └─ dashboard/          # Streamlit app
+├─ tests/
+├─ Dockerfile
+├─ Makefile
+├─ requirements.txt
+├─ README.md
+└─ LICENSE
+```
+
+## Next steps (ideas)
+- Replace synthetic generator with real open datasets
+- Add forecasting (Prophet / statsmodels)
+- Add CI (GitHub Actions) to run tests and lint
+- Deploy API to Render/Fly.io and Streamlit Cloud for the UI
+
+MIT © 2025 Victor Bornface
+
+pandas
+numpy
+scikit-learn
+matplotlib
+plotly
+jupyterlab
+fastapi
+uvicorn
+pydantic
+streamlit
+python-dotenv
+pytest
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.dist/
+build/
+.eggs/
+
+# Envs
+.venv/
+env/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data
+data/processed/*
+!data/processed/.gitkeep
+
+# Models
+models/
+artifacts/
+
+# OS/Editor
+.DS_Store
+.vscode/
+.idea/
+
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+EXPOSE 8000 8501
+CMD ["bash","-lc","uvicorn src.api.app:app --host 0.0.0.0 --port 8000 & streamlit run src/dashboard/app.py --server.port 8501 --server.address 0.0.0.0"]
+
+MIT License
+
+Copyright (c) 2025 Victor Bornface
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
